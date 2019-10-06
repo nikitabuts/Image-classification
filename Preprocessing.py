@@ -4,9 +4,8 @@ import torch
 import numpy as np
 import torch.utils.data as data_utils
 
-
 class ImagePreprocessing:
-    def __init__(self, PATH, size=(64, 64), functions=['hyperbola', 'sigmoid', 'abs', 'linear', 'parabola']):
+    def __init__(self, PATH = "C:\Project_images", size=(64, 64), functions=['hyperbola', 'sigmoid', 'abs', 'linear', 'parabola']):
         if exists(PATH):
             self.PATH = PATH                            #Укажите свой PATH
             self.size = size
@@ -41,11 +40,13 @@ class ImagePreprocessing:
         return data
 
 
-class GetData(ImagePreprocessing):
-    def __init__(self, csv_PATH):
+
+class GetData:
+    def __init__(self, csv_PATH, pictures_path):
         super().__init__()
         if exists(csv_PATH):
             self.csv_PATH = csv_PATH
+            self.pictures_path = pictures_path
         else:
             raise EOFError
 
@@ -53,7 +54,7 @@ class GetData(ImagePreprocessing):
         if is_data:        #Если есть csv файл с результатом выполнения метода preprocessing класса ImageProcessing
             return np.loadtxt(self.csv_PATH, delimiter=',')          #Выполняется ~ 3.5 минуты
         elif not_data:
-            return self.preprocessing(end=5100)
+            return ImagePreprocessing(self.pictures_path).preprocessing(end = 5500)
         else:
             raise ValueError
 
@@ -81,8 +82,13 @@ class DataPreparation:
                     np.std(self.data[length:self.data.shape[0], :-1])))
             y_test = torch.Tensor(self.data[length:self.data.shape[0], -1])
             test = data_utils.TensorDataset(X_test, y_test)
-            test_loader = data_utils.DataLoader(train, batch_size=100, shuffle=True)
+            test_loader = data_utils.DataLoader(test, batch_size=100, shuffle=True)
         else:
             test_loader = None
 
         return train_loader, test_loader
+
+
+#data = GetData(csv_PATH = "C:\\pictures.csv", pictures_path = "C:\\Project_validation" 
+#                   ).do(is_data = False, not_data = True)
+#train, _ = DataPreparation(validation, test_size = 0).train_test_split()
